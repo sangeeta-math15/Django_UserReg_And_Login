@@ -1,13 +1,16 @@
+from django.contrib import auth
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
-from .models import User
 from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
 from .serializer import UserSerializer
+
 import logging
+logging.basicConfig(filename="view.log", filemode="w")
 
 
-class UserRegister(APIView):
+class UserRegisterView(APIView):
 
     def post(self, request):
         """
@@ -34,14 +37,20 @@ class UserLogin(APIView):
         """
         Checks whether username and password exist in our database and logs in
         :param request:
-        :return: http response
+        :return: response
         """
         try:
-            user_dict = UserSerializer(data=request.data, many=True)
-            if User.objects.filter(username=user_dict.initial_data.get("username"),
-                                   password=user_dict.initial_data.get("password")).exists():
-                return Response({"message": "Successfully logged in"},  status=status.HTTP_200_OK)
-            return Response({"message": "Invalid Credentials"},  status=status.HTTP_400_BAD_REQUEST)
+            username = request.data.get("username")
+            password = request.data.get("password")
+            user = auth.authenticate(username=username, password=password)
+            if user:
+                return Response(
+                    {
+                        "message": "logged in successfully",
+                    }, status=status.HTTP_202_ACCEPTED)
+
+        except AuthenticationFailed:
+            return Response("Exception: Authentication failed..", status=status.HTTP_401_UNAUTHORIZED)
+
         except Exception as e:
-            logging.error(e)
-            return Response({"message": str(e)})
+            return Response({'Exception': str(e)})
