@@ -26,9 +26,9 @@ SECRET_KEY = 'django-insecure-ld6!1_3!e3a_4-cqoe#bi07a=sl8g+!qizl5eu(-h7e*34wzfw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-AUTH_USER_MODEL = "user.User"
+ALLOWED_HOSTS = ['*']
 # Application definition
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -39,13 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'rest_framework',
+    'note_app'
 ]
+AUTH_USER_MODEL = "user.User"
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
