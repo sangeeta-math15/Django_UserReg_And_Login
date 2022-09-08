@@ -33,7 +33,6 @@ class NotesCRUD(APIView):
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        print(request.data)
         """
         this method is created for inserting the data
         :param request: format of the request
@@ -46,7 +45,7 @@ class NotesCRUD(APIView):
                 {
                     "message": "Here your Note",
                     "data": serializer.data
-                })
+                },status=status.HTTP_201_CREATED)
         except Exception as e:
             logging.error(e)
             return Response(
@@ -71,7 +70,7 @@ class NotesCRUD(APIView):
                     "message": "Data updated successfully",
                     "data": serializer.data
                 },
-                status=status.HTTP_201_CREATED)
+                status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             print(e)
             logging.error(e)

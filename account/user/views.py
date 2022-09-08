@@ -25,10 +25,10 @@ class UserRegisterView(APIView):
             return Response({"message": "User successfully registered", "data": user_dict.data},
                             status=status.HTTP_201_CREATED)
         except ValidationError as e:
-            return Response({"message": e.detail})
+            return Response({"message": e.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logging.error(e)
-            return Response({"message": str(e)})
+            return Response({"message": str(e)},status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLogin(APIView):
@@ -49,8 +49,13 @@ class UserLogin(APIView):
                         "message": "logged in successfully",
                     }, status=status.HTTP_202_ACCEPTED)
 
-        except AuthenticationFailed:
-            return Response("Exception: Authentication failed..", status=status.HTTP_401_UNAUTHORIZED)
+            # Login failed
+            return Response({"message": "Login failed!"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except ValidationError as e:
+            logging.error(e)
+            return Response({"Exception: Authentication failed.."}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            return Response({'Exception': str(e)})
+            logging.error(e)
+            return Response({'Exception': str(e)}, status=status.HTTP_400_BAD_REQUEST)
