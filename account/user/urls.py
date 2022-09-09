@@ -21,4 +21,5 @@ from . import views
 urlpatterns = [
     path('register/', views.UserRegisterView.as_view(), name='user_registration'),
     path('login/', views.UserLogin.as_view(), name='user_login'),
+    path('verify_token/<str:token>', views.VerifyToken.as_view(), name='verify_token'),
 ]

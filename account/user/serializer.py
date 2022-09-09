@@ -6,6 +6,7 @@ class UserSerializer(serializers.Serializer):
     """
     Serializer is used to converting the json data
     """
+    id = serializers.IntegerField(read_only=True)
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
     phone = serializers.CharField(required=False)

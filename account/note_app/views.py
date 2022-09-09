@@ -61,7 +61,7 @@ class NotesCRUD(APIView):
         :return: Response
         """
         try:
-            note = Notes.objects.get(pk=request.data["id"])
+            note = Notes.objects.get()
             serializer = NoteSerializer(note, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -87,7 +87,7 @@ class NotesCRUD(APIView):
         :return: response
         """
         try:
-            note = Notes.objects.get(id=request.data["id"])
+            note = Notes.objects.get()
             note.delete()
             return Response(
                 {
