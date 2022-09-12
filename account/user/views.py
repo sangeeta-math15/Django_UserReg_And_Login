@@ -4,13 +4,12 @@ from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
-
 from account import settings
 from .serializer import UserSerializer
 from .models import User
 import logging
 
-from .util import encode_token, decode_token
+from .util import EncodeDecode
 
 logging.basicConfig(filename="view.log", filemode="w")
 
@@ -30,7 +29,7 @@ class UserRegisterView(APIView):
 
             user_name = serializer.data.get('username')
             user_id = serializer.data.get('id')
-            token = encode_token({"user_id": user_id, "username": user_name})
+            token = EncodeDecode.encode_token({"user_id": user_id, "username": user_name})
             send_mail(from_email=settings.EMAIL_HOST_USER,
                       recipient_list=[serializer.data['email']],
                       message='Register yourself by complete this verification'
@@ -62,10 +61,12 @@ class UserLogin(APIView):
             username = request.data.get("username")
             password = request.data.get("password")
             user = auth.authenticate(username=username, password=password)
-            if user:
+            if user is not None:
+                token = EncodeDecode.encode_token(payload={'user_id': user.id})
                 return Response(
                     {
                         "message": "logged in successfully",
+                        "data": {"token": token}
                     }, status=status.HTTP_202_ACCEPTED)
 
             # Login failed
@@ -83,7 +84,7 @@ class UserLogin(APIView):
 class VerifyToken(APIView):
     def get(self, request, token=None):
         try:
-            d_token = decode_token(token)
+            d_token = EncodeDecode.decode_token(token)
             user_id = d_token.get("user_id")
             username = d_token.get("username")
 
