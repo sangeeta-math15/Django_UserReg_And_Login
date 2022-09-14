@@ -1,5 +1,5 @@
+from .task import send_email_task
 from django.contrib import auth
-from django.core.mail import send_mail
 from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
@@ -29,12 +29,7 @@ class UserRegisterView(APIView):
 
             user_name = serializer.data.get('username')
             user_id = serializer.data.get('id')
-            token = EncodeDecode.encode_token({"user_id": user_id, "username": user_name})
-            send_mail(from_email=settings.EMAIL_HOST_USER,
-                      recipient_list=[serializer.data['email']],
-                      message='Register yourself by complete this verification'
-                              f'url is http://127.0.0.1:8000/user/verify_token/{token}',
-                      subject='Link for the registration', )
+            send_email_task.delay(userid=user_id, to=serializer.data['email'], username=user_name),
             return Response({"message": "CHECK EMAIL for verification"})
         except ValueError as e:
             logging.exception(e)

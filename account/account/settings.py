@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+
+from celery.schedules import crontab
 from decouple import config
 
 
@@ -39,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'rest_framework',
-    'note_app'
+    'note_app',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 AUTH_USER_MODEL = "user.User"
 
@@ -152,3 +156,14 @@ EMAIL_HOST_USER=config('EMAIL')
 EMAIL_HOST_PASSWORD=config('EMAIL_PASSWORD')
 EMAIL_USE_TLS=True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_ACCEPT_CONTENT = ['application/json', 'json', 'application/text']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Kolkata'
+CELERY_RESULT_BACKEND = 'redis'
+#CELERY BEAT
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_ENABLE_UTC = False
