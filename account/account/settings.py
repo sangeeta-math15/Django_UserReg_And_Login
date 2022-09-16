@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'note_app',
     'django_celery_results',
     'django_celery_beat',
+    'drf_yasg'
 ]
 AUTH_USER_MODEL = "user.User"
 
@@ -52,10 +53,11 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'user.middleware.DemoMiddleware'
 ]
 
 ROOT_URLCONF = 'account.urls'
@@ -157,6 +159,7 @@ EMAIL_HOST_PASSWORD=config('EMAIL_PASSWORD')
 EMAIL_USE_TLS=True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 CELERY_ACCEPT_CONTENT = ['application/json', 'json', 'application/text']
 CELERY_RESULT_SERIALIZER = 'json'
@@ -167,3 +170,41 @@ CELERY_RESULT_BACKEND = 'redis'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 CELERY_ENABLE_UTC = False
+
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'token',
+            'in': 'header'
+      }
+   }
+}
+LOGGING = {
+    'version': 1,
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG'
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'view.log',
+            'formatter': 'simple',
+
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG'
+        },
+    },
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {asctime} {module} {message} {lineno}',
+            'style': '{'
+        }
+    }
+}

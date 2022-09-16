@@ -10,12 +10,25 @@ from .models import User
 import logging
 
 from .util import EncodeDecode
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 logging.basicConfig(filename="view.log", filemode="w")
 
 
 class UserRegisterView(APIView):
 
+    @swagger_auto_schema(
+        operation_summary="register",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING, description='username'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='email'),
+                'phone': openapi.Schema(type=openapi.TYPE_STRING, description='phone'),
+            }
+        ))
     def post(self, request):
         """
         Register user with given details
@@ -45,7 +58,15 @@ class UserRegisterView(APIView):
 
 
 class UserLogin(APIView):
-
+    @swagger_auto_schema(
+        operation_summary="login user",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING, description='username'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
+            }
+        ))
     def post(self, request):
         """
         Checks whether username and password exist in our database and logs in

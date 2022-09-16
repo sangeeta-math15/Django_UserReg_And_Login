@@ -17,3 +17,9 @@ class User(AbstractUser):
         ],
     )
     is_verified = models.BooleanField(default=False)
+
+
+class UserLogs(models.Model):
+    request_method = models.CharField(max_length=50)
+    request_url = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True, null=False,blank=False)
