@@ -1,4 +1,5 @@
-from .task import send_email_task
+import json
+# from .task import send_email_task
 from django.contrib import auth
 from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
@@ -12,7 +13,7 @@ import logging
 from .util import EncodeDecode
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from .send import send_data_to_queue
 logging.basicConfig(filename="view.log", filemode="w")
 
 
@@ -41,9 +42,11 @@ class UserRegisterView(APIView):
             serializer.save()
 
             user_name = serializer.data.get('username')
-            user_id = serializer.data.get('id')
-            send_email_task.delay(userid=user_id, to=serializer.data['email'], username=user_name),
-            return Response({"message": "CHECK EMAIL for verification"})
+            userid = serializer.data.get('id')
+            json_data = json.dumps(
+                {'username': user_name,'user_id': userid, 'user_email': serializer.data.get('email')})
+            send_data_to_queue(data=json_data)
+            return Response({"message": "Registered successfully"})
         except ValueError as e:
             logging.exception(e)
             return Response({"message": 'Invalid Input'}, status=status.HTTP_400_BAD_REQUEST)
