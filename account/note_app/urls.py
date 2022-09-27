@@ -18,4 +18,7 @@ from . import views
 
 urlpatterns = [
     path('', views.NotesCRUD.as_view(), name='NotesCRUD'),
+    path('collaborator/', views.CollaboratorView.as_view(), name='Collaborator'),
+    path('labels/', views.LabelsView.as_view(), name='labels'),
+    path('labels-note/', views.AddLabelNotes.as_view(), name='labels-note')
 ]
