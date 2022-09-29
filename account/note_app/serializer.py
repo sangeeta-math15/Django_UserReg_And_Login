@@ -9,7 +9,7 @@ class LabelsSerializer(serializers.ModelSerializer):
 
 
 class NoteSerializer(serializers.ModelSerializer):
-    labels = LabelsSerializer(many=True)
+    labels = LabelsSerializer(many=True, read_only=True)
 
     class Meta:
         model = Notes

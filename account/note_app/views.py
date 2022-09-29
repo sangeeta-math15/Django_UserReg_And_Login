@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.forms import model_to_dict
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -6,6 +7,7 @@ from .serializer import NoteSerializer, CollaboratorSerializer, LabelsSerializer
 from .models import Notes, Labels
 import logging
 from .util import verifying_token
+from django.db import connections
 
 logging.basicConfig(filename="view.log", filemode="w")
 
@@ -13,19 +15,16 @@ logging.basicConfig(filename="view.log", filemode="w")
 class NotesCRUD(APIView):
     @verifying_token
     def post(self, request):
-
         """
         this method is created for inserting the data
         :param request: format of the request
         :return: Response
         """
-        # verifying_token(request)
 
         try:
             serializer = NoteSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-
             return Response(
                 {
                     "message": "Data store successfully",
@@ -34,7 +33,6 @@ class NotesCRUD(APIView):
                 status=status.HTTP_201_CREATED)
         except Exception as e:
             logging.error(e)
-
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @verifying_token
@@ -43,7 +41,7 @@ class NotesCRUD(APIView):
          filter by note collaborators OR user collaborators
         """
         try:
-            data = Q(collaborator__id=request.data.get('user_id')) | Q(user_id__id=request.data.get('user_id'))  |\
+            data = Q(collaborator__id=request.data.get('user_id')) | Q(user_id__id=request.data.get('user_id')) | \
                    Q(labels__id=request.data.get('user_id'))
             n_collaborator = Notes.objects.filter(data).distinct('id')
             serializer = NoteSerializer(n_collaborator, many=True)
@@ -79,7 +77,6 @@ class NotesCRUD(APIView):
                 },
                 status=status.HTTP_202_ACCEPTED)
         except Exception as e:
-            print(e)
             logging.error(e)
             return Response(
                 {
@@ -177,6 +174,7 @@ class LabelsView(APIView):
         except Exception as e:
             logging.exception(e)
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     @verifying_token
     def delete(self, request):
         try:
@@ -208,6 +206,64 @@ class AddLabelNotes(APIView):
             note = Notes.objects.get(id=request.data.get('id'))
             note.labels.remove(*request.data.get('labels'))
             return Response({"message": "Label deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            logging.exception(e)
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NoteRawQuery(APIView):
+    @verifying_token
+    def post(self, request):
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute("INSERT INTO note_app_notes (title, description, user_id_id) VALUES( %s , %s , %s)",
+                           [request.data.get('title'),
+                            request.data.get('description'),
+                            request.data.get('user_id')])
+            cursor.execute('select * from note_app_notes order by id desc limit 1')
+            columns = [col[0] for col in cursor.description]
+            response = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            return Response({"message": " Note successfully added", "data": response})
+        except Exception as e:
+            logging.exception(e)
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @verifying_token
+    def get(self, request):
+        try:
+            n = Notes.objects.raw('SELECT * FROM note_app_notes where user_id_id = %s',
+                                  [request.data.get('user_id')])
+            n_data = [model_to_dict(x, ['id', 'title', 'description', 'user_id']) for x in n]
+
+            return Response({"message": "Data Retrieved", "data": n_data},
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            logging.exception(e)
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @verifying_token
+    def put(self, request):
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute('UPDATE note_app_notes set title = %s, description = %s WHERE id = %s and user_id_id=%s',
+                           [request.data.get('title'), request.data.get('description'), request.data.get('id'),
+                            request.data.get('user_id')])
+            cursor.execute('select * from note_app_notes order by id')
+            columns = [col[0] for col in cursor.description]
+            response = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            return Response({"message": " Note successfully updated", "data": response})
+        except Exception as e:
+            logging.exception(e)
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @verifying_token
+    def delete(self, request):
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute('DELETE from note_app_notes WHERE id = %s and user_id_id=%s',
+                           [request.data.get('id'),
+                            request.data.get('user_id')])
+            return Response({"message": "deleted note successfully"}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             logging.exception(e)
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
