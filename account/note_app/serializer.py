@@ -9,13 +9,13 @@ class LabelsSerializer(serializers.ModelSerializer):
 
 
 class NoteSerializer(serializers.ModelSerializer):
-    labels = LabelsSerializer(many=True)
+    labels = LabelsSerializer(many=True, read_only=True)
 
     class Meta:
         model = Notes
         fields = ['id', 'title', 'description', 'user_id', 'collaborator', 'labels']
+        ref_name = 'NoteSerializer'
         read_only_fields = ['collaborator', 'labels']
-
 
 class CollaboratorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,8 +23,6 @@ class CollaboratorSerializer(serializers.ModelSerializer):
         fields = ['id', 'collaborator']
 
     def validate(self, attrs):
-        # print(attrs)
-        # print(self.context)
         user_id_list = list(map(lambda x: x.id, attrs.get('collaborator')))
         if self.context.get('user_id') in user_id_list:
             raise serializers.ValidationError('logged in user cannot be a collaborator')

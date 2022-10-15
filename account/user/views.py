@@ -4,7 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
-from account import settings
+# from account import settings
+from django.conf import settings
 from .serializer import UserSerializer
 from .models import User
 import logging

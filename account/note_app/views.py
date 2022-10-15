@@ -19,7 +19,6 @@ class NotesCRUD(APIView):
         :param request: format of the request
         :return: Response
         """
-        # verifying_token(request)
 
         try:
             serializer = NoteSerializer(data=request.data)
