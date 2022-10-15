@@ -13,3 +13,15 @@
 -  `python manage.py migrate`
 -  **Testing our Models**
 - ` python manage.py runserver`
+```
+django
+django-rest-framework
+django-rest-framework-jwt
+django-redis-caches
+python3
+rest_framework_swagger
+rest_framework.authtoken
+```
+reference link:-
+https://www.django-rest-framework.org/
+https://docs.djangoproject.com/en/4.1/intro/tutorial01/
