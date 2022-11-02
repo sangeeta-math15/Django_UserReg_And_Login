@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,9 +27,9 @@ SECRET_KEY = 'django-insecure-ld6!1_3!e3a_4-cqoe#bi07a=sl8g+!qizl5eu(-h7e*34wzfw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-AUTH_USER_MODEL = "user.User"
+ALLOWED_HOSTS = ['*']
 # Application definition
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,13 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'rest_framework',
+    'note_app'
 ]
+AUTH_USER_MODEL = "user.User"
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -67,6 +72,12 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
+}
 
 WSGI_APPLICATION = 'account.wsgi.application'
 
@@ -123,3 +134,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_PORT=587
+EMAIL_HOST_USER=os.getenv('EMAIL')
+EMAIL_HOST_PASSWORD=os.getenv('EMAIL_PASSWORD')
+EMAIL_USE_TLS=True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
