@@ -36,7 +36,7 @@ class UserRegisterView(APIView):
                       message='Register yourself by complete this verification'
                               f'url is http://127.0.0.1:8000/user/verify_token/{token}',
                       subject='Link for the registration', )
-            return Response({"message": "CHECK EMAIL for verification"})
+            return Response({"message": "CHECK EMAIL for verification", "data": serializer.data})
         except ValueError as e:
             logging.exception(e)
             return Response({"message": 'Invalid Input'}, status=status.HTTP_400_BAD_REQUEST)
@@ -88,7 +88,6 @@ class VerifyToken(APIView):
             d_token = EncodeDecode.decode_token(token)
             user_id = d_token.get("user_id")
             username = d_token.get("username")
-
             u_ = User.objects.get(id=user_id, username=username)
             if u_ is not None:
                 u_.is_verified = True
