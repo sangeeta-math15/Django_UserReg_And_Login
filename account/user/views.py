@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
-# from account import settings
+
 from django.conf import settings
 from .serializer import UserSerializer
 from .models import User
@@ -27,7 +27,6 @@ class UserRegisterView(APIView):
             serializer = UserSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-
             user_name = serializer.data.get('username')
             user_id = serializer.data.get('id')
             token = EncodeDecode.encode_token({"user_id": user_id, "username": user_name})
@@ -70,7 +69,6 @@ class UserLogin(APIView):
                         "data": {"token": token}
                     }, status=status.HTTP_202_ACCEPTED)
 
-            # Login failed
             return Response({"message": "Login failed!"},
                             status=status.HTTP_401_UNAUTHORIZED)
         except ValidationError as e:

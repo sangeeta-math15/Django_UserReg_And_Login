@@ -3,6 +3,7 @@
 import os
 from dotenv import load_dotenv
 import sys
+from dotenv import load_dotenv
 
 
 def main():
