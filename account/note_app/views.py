@@ -15,7 +15,6 @@ logging.basicConfig(filename="view.log", filemode="w")
 class NotesCRUD(APIView):
     @verifying_token
     def post(self, request):
-
         """
         this method is created for inserting the data
         :param request: format of the request
